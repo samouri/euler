@@ -35,11 +35,17 @@ let rec sum_until_4mil n =
     ( if isEven then fibVal else 0 ) + sum_until_4mil (n+1)
   )
 
+
+let rec pfactors_nondeduped ?(factors=[]) ?(divisor=2) n = 
+  if n = 1 then factors 
+  else if n mod divisor = 0 then pfactors_nondeduped ~factors:(divisor::factors) ~divisor (n/divisor)
+  else pfactors_nondeduped ~factors ~divisor:(divisor+1) n;;
+
 (* get all prime factors *)
 let rec pfactors ?(factors=[]) ?(divisor=2) n = 
-  if n = 1 then List.dedup factors 
-  else if n mod divisor = 0 then pfactors ~factors:(divisor::factors) ~divisor (n/divisor)
-  else pfactors ~factors ~divisor:(divisor+1) n;;
+  pfactors_nondeduped ~factors ~divisor n 
+  |> List.dedup
+;;
 
 (* problem 1
 *)
@@ -93,8 +99,22 @@ let prob4 = fun() ->
  * What is the smallest positive number that is evenly divisible by all of the numbers from 1 to 20?
 *)
 
+let rec gcd x y = match (x,y) with
+  | (x', 0) -> x'
+  | (x',y') -> gcd y' (x' mod y')
+
+let lcm x y  = ( x * y ) / (gcd x y);;
+
+(* least common multiple of a list of numbers *)
+let lcmList nums = List.fold ~f:lcm ~init:1 nums;;
+
+let prob5 = fun() ->
+  let probRange = List.range 1 20 in
+  print_endline ("problem 5: " ^ string_of_int (lcmList probRange)) 
+;;
 
 prob1();
 prob2();
 prob3();
 prob4();
+prob5();
